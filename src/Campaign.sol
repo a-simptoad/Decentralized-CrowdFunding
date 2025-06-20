@@ -25,6 +25,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/shared/interfaces/AggregatorV3Interface.sol";
+
 error Campaign__CampaignNotActive();
 error Campaign__InvalidAmount();
 error Campaign__FundTransferFailed();
@@ -40,6 +44,9 @@ contract Campaign {
 
     CampaignStatus private status;
     Funder [] private funders;
+    mapping(address => address) private s_tokenAddressToDatafeeds;
+    uint256 private s_tokenCounter;
+    mapping(uint256 => string) private s_tokenIdToUri;
     uint256 private s_raisedAmount;
     address private immutable i_owner;
     uint256 private immutable i_targetAmount;
@@ -59,7 +66,7 @@ contract Campaign {
         _;
     }
 
-    constructor(address _owner, uint256 _targetAmount, uint256 _deadline) {
+    constructor(address _owner, uint256 _targetAmount, uint256 _deadline, string name, string symbol) ERC721(name, symbol) {
         i_owner = _owner;
         i_targetAmount = _targetAmount;
         i_deadline = _deadline;
@@ -80,6 +87,23 @@ contract Campaign {
         funders.push(Funder(msg.sender, msg.value)); // msg.sender will be the address of the person sending eth to this contract.
         s_raisedAmount += msg.value;
         emit Funded(msg.sender, msg.value);
+    }
+
+    // Function will get the address of the token (USDC, DAI, etc.) and the amount of tokens to be funded.
+    function fundWithTokens(address token, uint256 amount) external checkState {
+        if(status != CampaignStatus.Active && block.timestamp - i_creationTime < i_deadline && s_raisedAmount < i_targetAmount) {   
+            revert Campaign__CampaignNotActive();
+        }
+
+        if(msg.value <= 0) {
+            revert Campaign__InvalidAmount();
+        }
+
+        bool success = IERC20(token).transferFrom(msg.sender, address(this), amount);
+        require(success, Campaign__FundTransferFailed());
+        s_raisedAmount += convertTokensToUSD(s_tokenAddressToDatafeeds[token]) * amount;
+        funders.push(Funder(msg.sender, amount));
+        emit Funded(msg.sender, amount);
     }
 
     function checkUpkeep() external checkState{
@@ -114,11 +138,20 @@ contract Campaign {
         return funders;
     }
 
+    // supported tokens -> DAI, USDC, ETH
+    function convertTokensToUSD(address datafeed) internal view returns (uint256){
+        // Logic to convert tokens to USD using Chainlink price feeds
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(datafeed);
+        (, int256 price, , , ) = priceFeed.latestRoundData();
+        return (uint256(price)) / 1e18;
+    }
 }
 
 // Chainlink Automation can be implemented to check if goal of a campaign is met after the set deadline.
 // Adding NFT rewards for funders to incentivize them.
 // DAOs can be created to manage campaigns collectively and add a voting system for funders to decide on the campaign's future actions.
 // // Adding IPFS or Arweave integration to store campaign details, images, and updates in a decentralized manner.
-// Contract can also trade using ERC20 tokens instead of ETH.
+// // Contract can also trade using ERC20 tokens instead of ETH.
 // If the campaign fails, the contract gets self destructed and the funds are returned to the funders.
+
+// Still have to put the datafeed address for each token in the mapping s_tokenAddressToDatafeeds. (also for ETH/USD for getting amount)
