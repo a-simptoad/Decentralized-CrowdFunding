@@ -27,7 +27,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {AggregatorV3Interface} from "@chainlink/contracts/shared/interfaces/AggregatorV3Interface.sol";
+import {AggregatorV3Interface} from "../lib/chainlink-brownie-contracts/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 error Campaign__CampaignNotActive();
 error Campaign__InvalidAmount();
@@ -66,7 +66,7 @@ contract Campaign {
         _;
     }
 
-    constructor(address _owner, uint256 _targetAmount, uint256 _deadline, string name, string symbol) ERC721(name, symbol) {
+    constructor(address _owner, uint256 _targetAmount, uint256 _deadline) {
         i_owner = _owner;
         i_targetAmount = _targetAmount;
         i_deadline = _deadline;
@@ -95,7 +95,7 @@ contract Campaign {
             revert Campaign__CampaignNotActive();
         }
 
-        if(msg.value <= 0) {
+        if(amount <= 0) {
             revert Campaign__InvalidAmount();
         }
 
@@ -138,8 +138,13 @@ contract Campaign {
         return funders;
     }
 
+    function setTokenDataFeed(address token, address datafeed) external {
+        require(msg.sender == i_owner, "Only owner can set data feeds");
+        s_tokenAddressToDatafeeds[token] = datafeed;
+    }
+
     // supported tokens -> DAI, USDC, ETH
-    function convertTokensToUSD(address datafeed) internal view returns (uint256){
+    function convertTokensToUSD(address datafeed) public view returns (uint256){
         // Logic to convert tokens to USD using Chainlink price feeds
         AggregatorV3Interface priceFeed = AggregatorV3Interface(datafeed);
         (, int256 price, , , ) = priceFeed.latestRoundData();
