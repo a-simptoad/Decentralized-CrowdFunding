@@ -1,0 +1,134 @@
+.layout251-layout251 {
+  width: 100%;
+  height: auto;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  align-items: center;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+ 
+.layout251-max-width {
+  gap: var(--dl-layout-space-threeunits);
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.layout251-column {
+  gap: var(--dl-layout-space-halfunit);
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+ 
+.layout251-content1 {
+  gap: 48px;
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.layout251-row {
+  align-items: flex-start;
+}
+ 
+.layout251-feature1 {
+  flex: 1;
+}
+ 
+.layout251-content2 {
+  align-self: stretch;
+  align-items: flex-start;
+}
+ 
+.layout251-feature2 {
+  flex: 1;
+}
+ 
+.layout251-content3 {
+  align-self: stretch;
+  align-items: flex-start;
+}
+ 
+.layout251-feature3 {
+  flex: 1;
+}
+ 
+.layout251-content4 {
+  align-self: stretch;
+  align-items: flex-start;
+}
+ 
+.layout251-text12 {
+  display: inline-block;
+}
+ 
+.layout251-text13 {
+  display: inline-block;
+}
+ 
+.layout251-text14 {
+  display: inline-block;
+}
+ 
+.layout251-text15 {
+  display: inline-block;
+}
+ 
+.layout251-text16 {
+  display: inline-block;
+}
+ 
+.layout251-text17 {
+  display: inline-block;
+}
+ 
+.layout251-text18 {
+  display: inline-block;
+}
+ 
+.layout251-text19 {
+  display: inline-block;
+}
+ 
+@media(max-width: 991px) {
+  .layout251-section-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .layout251-feature1-image {
+    height: 260px;
+  }
+  .layout251-feature2-image {
+    height: 260px;
+  }
+  .layout251-feature3-image {
+    height: 260px;
+  }
+}
+ 
+@media(max-width: 767px) {
+  .layout251-column {
+    width: 100%;
+  }
+  .layout251-text10 {
+    text-align: center;
+  }
+  .layout251-row {
+    flex-direction: column;
+  }
+  .layout251-feature1-image {
+    width: 100%;
+  }
+  .layout251-feature2 {
+    width: auto;
+  }
+  .layout251-feature2-image {
+    width: 100%;
+  }
+  .layout251-feature3 {
+    width: auto;
+  }
+}
