@@ -27,14 +27,14 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {AggregatorV3Interface} from "@chainlink/contracts/shared/interfaces/AggregatorV3Interface.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 error Campaign__CampaignNotActive();
 error Campaign__InvalidAmount();
 error Campaign__FundTransferFailed();
 
 
-contract Campaign {
+contract Campaign is ERC721 {
     enum CampaignStatus { Active, Completed, Failed }
 
     struct Funder {
@@ -66,7 +66,7 @@ contract Campaign {
         _;
     }
 
-    constructor(address _owner, uint256 _targetAmount, uint256 _deadline, string name, string symbol) ERC721(name, symbol) {
+    constructor(address _owner, uint256 _targetAmount, uint256 _deadline, string memory name, string memory symbol) ERC721(name, symbol) {
         i_owner = _owner;
         i_targetAmount = _targetAmount;
         i_deadline = _deadline;
@@ -95,7 +95,7 @@ contract Campaign {
             revert Campaign__CampaignNotActive();
         }
 
-        if(msg.value <= 0) {
+        if(amount <= 0) {
             revert Campaign__InvalidAmount();
         }
 
