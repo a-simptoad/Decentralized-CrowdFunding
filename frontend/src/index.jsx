@@ -11,6 +11,7 @@ import Home from './views/home';
 import BrowseCampaigns from './views/browse-campaigns';
 import CreateCampaign from './views/create-campaign';
 import NotFound from './views/not-found';
+import { connectWallet } from './ethers';
 
 const App = () => {
   return (
@@ -33,7 +34,7 @@ const App = () => {
             className="create-campaign-desktop-menu"
           >
             <div className="create-campaign-buttons1">
-              <button className="create-campaign-action11 thq-button-filled thq-button-animated">
+              <button className="create-campaign-action11 thq-button-filled thq-button-animated" onClick={connectWallet}>
                 Connect
               </button>
               <Link
