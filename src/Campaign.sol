@@ -50,13 +50,13 @@ contract Campaign {
     uint256 private s_raisedAmount;
     address private immutable i_owner;
     uint256 private immutable i_targetAmount;
-    uint256 private immutable i_deadline;
+    uint256 private immutable i_duration;
     uint256 private immutable i_creationTime;
 
     event Funded(address indexed funder, uint256 amount);
 
     modifier checkState() {
-        if (status == CampaignStatus.Active && block.timestamp >= i_creationTime + i_deadline) {
+        if (status == CampaignStatus.Active && block.timestamp >= i_creationTime + i_duration) {
             if (s_raisedAmount >= i_targetAmount) {
                 status = CampaignStatus.Completed;
             } else {
@@ -66,17 +66,17 @@ contract Campaign {
         _;
     }
 
-    constructor(address _owner, uint256 _targetAmount, uint256 _deadline) {
+    constructor(address _owner, uint256 _targetAmount, uint256 _duration) {
         i_owner = _owner;
         i_targetAmount = _targetAmount;
-        i_deadline = _deadline;
+        i_duration = _duration;
         i_creationTime = block.timestamp;
         status = CampaignStatus.Active;
     }
 
     receive() external payable {
         //Check whether the campaign is active
-        if(status != CampaignStatus.Active && block.timestamp - i_creationTime < i_deadline && s_raisedAmount < i_targetAmount) {   
+        if(status != CampaignStatus.Active && block.timestamp - i_creationTime < i_duration && s_raisedAmount < i_targetAmount) {   
             revert Campaign__CampaignNotActive();
         }
 
@@ -91,7 +91,7 @@ contract Campaign {
 
     // Function will get the address of the token (USDC, DAI, etc.) and the amount of tokens to be funded.
     function fundWithTokens(address token, uint256 amount) external checkState {
-        if(status != CampaignStatus.Active && block.timestamp - i_creationTime < i_deadline && s_raisedAmount < i_targetAmount) {   
+        if(status != CampaignStatus.Active && block.timestamp - i_creationTime < i_duration && s_raisedAmount < i_targetAmount) {   
             revert Campaign__CampaignNotActive();
         }
 
@@ -122,8 +122,8 @@ contract Campaign {
         
     }
 
-    function getDeadline () external view returns (uint256) {
-        return i_deadline;
+    function getDuration() external view returns (uint256) {
+        return i_duration;
     }
 
     function getRaisedAndTargetAmount() external view returns (uint256, uint256) {

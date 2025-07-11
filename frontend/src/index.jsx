@@ -34,7 +34,7 @@ const App = () => {
             className="create-campaign-desktop-menu"
           >
             <div className="create-campaign-buttons1">
-              <button className="create-campaign-action11 thq-button-filled thq-button-animated" onClick={connectWallet}>
+              <button className="create-campaign-action11 thq-button-filled thq-button-animated" onClick={connectWallet} id='connect-wallet-button'>
                 Connect
               </button>
               <Link
