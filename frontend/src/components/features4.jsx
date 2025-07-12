@@ -1,10 +1,53 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect, useState, useRef } from 'react'
+import { fetchFromIPFS } from '../pinata'
+import { getCampaigns, getCampaignDetails } from '../ethers'
 
 import PropTypes from 'prop-types'
 
 import './features4.css'
 
-const Features4 = ({sectionTitle, campaignDetails, feature1ImageSrc }) => {
+const Features4 = ({sectionTitle }) => {
+  
+const [campaignDetails, setCampaignDetails] = useState([]);
+const [metadata, setMetadata] = useState([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const campaignAddresses = await getCampaigns();
+      const details = await Promise.all(
+        campaignAddresses.map(async (address) => {
+          return await getCampaignDetails(address);
+        })
+      );
+      
+      const validDetails = details.filter(detail => detail !== null);
+      setCampaignDetails(validDetails);
+
+      // Fetch all metadata in parallel
+      const metadataArray = await Promise.all(
+        validDetails.map(async (campaign) => {
+          return await fetchFromIPFS(campaign.metadata);
+        })
+      );
+      
+      setMetadata(metadataArray);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
+  if (loading) {
+    return <div className="loading-container">Loading campaigns...</div>;
+  }
+  
   return (
     <div className="features4-layout301 thq-section-padding">
       <div className="features4-max-width thq-section-max-width">
@@ -23,14 +66,15 @@ const Features4 = ({sectionTitle, campaignDetails, feature1ImageSrc }) => {
               <div key={index} className="features4-feature1">
                 <img
                   alt={`Campaign ${index + 1}`}
-                  src={campaign.imageCID ? `https://${import.meta.env.VITE_GATEWAY}/ipfs/${campaign.imageCID}` : Features4.defaultProps.feature1ImageSrc}
+                  src={metadata[index].data.image}
                   className="thq-img-ratio-4-3"
                 />
                 <div className="features4-content1 thq-flex-column">
                   <div className="features4-section-title1 thq-flex-column">
+                    {metadata[index].data.title}
                     <span className="features4-description1 thq-body-small">
                       <span className="features4-text16">
-                        {campaign.description || 'No description available'}
+                        {metadata[index].data.description}
                       </span>
                     </span>
                     <span className="features4-text16">

@@ -7,32 +7,6 @@ import Footer4 from '../components/footer4'
 import './browse-campaigns.css'
 
 const BrowseCampaigns = () => {  
-  const [campaignDetails, setCampaignDetails] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const campaignAddresses = await getCampaigns();
-        const details = await Promise.all(
-          campaignAddresses.map(async (address) => {
-            return await getCampaignDetails(address);
-          })
-        );
-        setCampaignDetails(details.filter(detail => detail !== null));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <div className="loading-container">Loading campaigns...</div>;
-  }
 
   return (
     <div className="browse-campaigns-container">
@@ -46,11 +20,10 @@ const BrowseCampaigns = () => {
         sectionTitle={
           <Fragment>
             <span className="browse-campaigns-text38">
-              Active Campaigns ({campaignDetails.length})
+              Active Campaigns
             </span>
           </Fragment>
         }
-        campaignDetails={campaignDetails}
       />
       
       <Footer4

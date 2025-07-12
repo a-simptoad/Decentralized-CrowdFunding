@@ -61,10 +61,10 @@ export const getCampaignDetails = async (campaignAddress) => {
     const campaignContract = new ethers.Contract(campaignAddress, campaignABI, provider);
 
     try {
-        const imageCID = await contract.getCampaignIPFSMetadataCID(campaignAddress);
+        const metadata = await contract.getCampaignIPFSMetadataCID(campaignAddress);
         const [raisedAmount, goalAmount] = await campaignContract.getRaisedAndTargetAmount();
         const duration = await campaignContract.getDuration();
-        return { imageCID, goalAmount, raisedAmount, duration };
+        return { metadata, goalAmount, raisedAmount, duration };
     } catch (error) {
         console.error("Error retrieving campaign details:", error);
         return null;
@@ -82,11 +82,11 @@ export const createCampaign = async (title, description, goalAmount, duration, i
         "function createCampaign(uint256 goalAmount, uint256 duration, string memory imageCID) public"
     ];
 
-    const imageCID = await uploadToIPFS(title, description, image);
+    const metadata = await uploadToIPFS(title, description, image);
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
     try {
-        const tx = await contract.createCampaign(goalAmount, duration, imageCID);
+        const tx = await contract.createCampaign(goalAmount, duration, metadata);
         console.log("Transaction sent:", tx);
         await tx.wait();
         console.log("Transaction confirmed:", tx.hash);
